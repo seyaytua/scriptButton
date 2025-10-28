@@ -152,13 +152,13 @@ class ScriptFileSelector(QDialog):
         
         # タイトル
         title = QLabel("📁 実行するスクリプトファイルを選択してください")
-        title.setStyleSheet("font-size: 16px; font-weight: bold; color: white; padding: 10px;")
+        title.setStyleSheet("font-size: 16px; font-weight: bold; color: #ecf0f1; padding: 10px;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
         # フォルダパス表示
         path_label = QLabel(f"フォルダ: {self.folder_path}")
-        path_label.setStyleSheet("color: #95a5a6; font-style: italic; padding: 5px;")
+        path_label.setStyleSheet("color: #bdc3c7; font-style: italic; padding: 5px;")
         layout.addWidget(path_label)
         
         # ツリービュー
@@ -221,7 +221,7 @@ class ScriptFileSelector(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: white; }")
+        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: #ecf0f1; }")
     
     def populate_tree(self):
         """ツリーにファイルを追加"""
@@ -433,7 +433,7 @@ class NewCassetteWizard(QDialog):
         
         # タイトル
         title = QLabel("🎮 新規カセット作成ウィザード")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: white; padding: 8px;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #ecf0f1; padding: 8px;")
         title.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title)
         
@@ -460,7 +460,7 @@ class NewCassetteWizard(QDialog):
         step1_layout = QVBoxLayout()
         
         step1_label = QLabel("ステップ 1: アプリフォルダを選択")
-        step1_label.setStyleSheet("font-weight: bold; font-size: 13px; color: white;")
+        step1_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #ecf0f1;")
         step1_layout.addWidget(step1_label)
         
         folder_layout = QHBoxLayout()
@@ -486,7 +486,7 @@ class NewCassetteWizard(QDialog):
         step2_layout = QVBoxLayout()
         
         step2_label = QLabel("ステップ 2: 実行ファイルを選択")
-        step2_label.setStyleSheet("font-weight: bold; font-size: 13px; color: white;")
+        step2_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #ecf0f1;")
         step2_layout.addWidget(step2_label)
         
         script_select_layout = QHBoxLayout()
@@ -520,7 +520,7 @@ class NewCassetteWizard(QDialog):
         step3_layout = QVBoxLayout()
         
         step3_label = QLabel("ステップ 3: カセット情報を入力")
-        step3_label.setStyleSheet("font-weight: bold; font-size: 13px; color: white;")
+        step3_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #ecf0f1;")
         step3_layout.addWidget(step3_label)
         
         # タイトル
@@ -633,7 +633,7 @@ class NewCassetteWizard(QDialog):
         main_layout.addLayout(button_layout)
         
         self.setLayout(main_layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: white; }")
+        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: #ecf0f1; }")
     
     def select_folder(self):
         """フォルダを選択"""
@@ -845,7 +845,7 @@ class CassetteCard(QFrame):
         title_label.setWordWrap(True)
         title_label.setStyleSheet("""
             QLabel {
-                color: white;
+                color: #ecf0f1;
                 font-size: 14px;
                 font-weight: bold;
                 padding: 5px;
@@ -859,7 +859,7 @@ class CassetteCard(QFrame):
             tags_label.setAlignment(Qt.AlignCenter)
             tags_label.setStyleSheet("""
                 QLabel {
-                    color: #95a5a6;
+                    color: #bdc3c7;
                     font-size: 10px;
                 }
             """)
@@ -1027,7 +1027,7 @@ class CarouselWidget(QWidget):
         
         if not self.filtered_cassettes:
             no_result = QLabel("該当するカセットがありません")
-            no_result.setStyleSheet("color: #95a5a6; font-size: 16px;")
+            no_result.setStyleSheet("color: #bdc3c7; font-size: 16px;")
             no_result.setAlignment(Qt.AlignCenter)
             self.card_layout.addWidget(no_result)
             self.cards.append(no_result)
@@ -1219,7 +1219,7 @@ class SlotAssignDialog(QDialog):
         
         # タイトル
         title = QLabel(f"スロット {self.slot_number} に割り当てるカセットを選択")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #ecf0f1;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
@@ -1354,7 +1354,7 @@ class GameButton(QPushButton):
             self.setStyleSheet("""
                 QPushButton {
                     background-color: #34495e;
-                    color: #95a5a6;
+                    color: #ecf0f1;
                     border: 3px dashed #7f8c8d;
                     border-radius: 10px;
                     font-size: 12px;
@@ -1445,7 +1445,7 @@ class ExecutionLogDialog(QDialog):
         
         # タイトル
         title = QLabel("📊 実行ログ")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #ecf0f1;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
@@ -1500,7 +1500,7 @@ class ExecutionLogDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: white; }")
+        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: #ecf0f1; }")
     
     def clear_logs(self):
         """ログをクリア"""
@@ -1633,14 +1633,16 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("スクリプトボタン")
         self.setMinimumSize(900, 750)
         
-        self.base_dir = Path("/Users/syuta/App_button")
+        # __file__から相対パスで基本ディレクトリを取得
+        self.base_dir = Path(__file__).parent.resolve()
         self.cassettes_dir = self.base_dir / "cassettes"
-        self.saves_dir = self.base_dir / "saves"
+        self.saves_dir = self.cassettes_dir / "saves"
         self.config_file = self.base_dir / "config.json"
         self.log_file = self.base_dir / "execution_log.json"
         
-        self.cassettes_dir.mkdir(exist_ok=True)
-        self.saves_dir.mkdir(exist_ok=True)
+        # フォルダの自動作成
+        self.cassettes_dir.mkdir(parents=True, exist_ok=True)
+        self.saves_dir.mkdir(parents=True, exist_ok=True)
         
         self.buttons = []
         self.cassettes = []
@@ -1703,7 +1705,7 @@ class MainWindow(QMainWindow):
         title_font.setBold(True)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("color: white; padding: 10px;")
+        title_label.setStyleSheet("color: #ecf0f1; padding: 10px;")
         main_layout.addWidget(title_label)
         
         # ボタングリッド
@@ -2014,6 +2016,14 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
+    
+    # ウィンドウを画面の中央に配置
+    screen = app.primaryScreen().geometry()
+    window_geometry = window.frameGeometry()
+    center_point = screen.center()
+    window_geometry.moveCenter(center_point)
+    window.move(window_geometry.topLeft())
+    
     window.show()
     sys.exit(app.exec())
 
