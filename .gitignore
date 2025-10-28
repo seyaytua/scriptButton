@@ -1,0 +1,12 @@
+venv/
+**/venv/
+**/__pycache__/
+*.pyc
+.DS_Store
+*.log
+*.db
+*.docx
+*.spec
+**/node_modules/
+**/bundled/
+cassettes/scan/grade_entry_system_backup/
