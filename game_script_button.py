@@ -20,32 +20,20 @@ from PySide6.QtGui import (QIcon, QPixmap, QFont, QColor, QPalette, QPainter,
 # 管理者パスワードのハッシュ（yamabuki）
 ADMIN_PASSWORD_HASH = hashlib.sha256("yamabuki".encode()).hexdigest()
 
-# テーマ定義
-THEMES = {
-    "ダークモード": {
-        "background": "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0f1419, stop:1 #2c3e50)",
-        "button_frame": "#1a252f",
-        "empty_slot": "#34495e",
-        "text_color": "white"
-    },
-    "ネイビーモード": {
-        "background": "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #003087, stop:1 #000033)",
-        "button_frame": "#001a4d",
-        "empty_slot": "#003087",
-        "text_color": "white"
-    },
-    "レトロモード": {
-        "background": "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #8B4513, stop:1 #654321)",
-        "button_frame": "#5C4033",
-        "empty_slot": "#8B7355",
-        "text_color": "#FFE4B5"
-    },
-    "ライトモード": {
-        "background": "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f0f0f0, stop:1 #e0e0e0)",
-        "button_frame": "#ffffff",
-        "empty_slot": "#d0d0d0",
-        "text_color": "#333333"
-    }
+# ライトモードカラーパレット（統一）
+COLORS = {
+    "background": "#f5f5f5",  # 明るいグレー背景
+    "background_gradient": "qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #ffffff, stop:1 #f0f0f0)",
+    "button_frame": "#ffffff",  # 白いフレーム
+    "empty_slot": "#e0e0e0",  # 薄いグレー
+    "text_primary": "#212121",  # 濃いグレー（メインテキスト）
+    "text_secondary": "#616161",  # グレー（セカンダリテキスト）
+    "text_tertiary": "#9e9e9e",  # 薄いグレー（補助テキスト）
+    "border": "#bdbdbd",  # ボーダー
+    "divider": "#e0e0e0",  # 区切り線
+    "dialog_bg": "#fafafa",  # ダイアログ背景
+    "input_bg": "#ffffff",  # 入力欄背景
+    "hover": "#f5f5f5"  # ホバー時の背景
 }
 
 class CustomMessageBox(QDialog):
@@ -117,7 +105,7 @@ class CustomMessageBox(QDialog):
         message_label.setWordWrap(True)
         message_label.setStyleSheet("""
             QLabel {
-                color: #ecf0f1;
+                color: #212121;
                 font-size: 14px;
                 padding: 10px;
             }
@@ -145,7 +133,7 @@ class CustomMessageBox(QDialog):
                         font-weight: bold;
                         padding: 8px 20px;
                         border-radius: 5px;
-                        border: none;
+                        border: 1px solid #1e8449;
                     }
                     QPushButton:hover {
                         background-color: #229954;
@@ -154,15 +142,15 @@ class CustomMessageBox(QDialog):
             elif button_text in ["キャンセル", "いいえ", "No", "Cancel"]:
                 btn.setStyleSheet("""
                     QPushButton {
-                        background-color: #7f8c8d;
+                        background-color: #95a5a6;
                         color: white;
                         font-size: 14px;
                         padding: 8px 20px;
                         border-radius: 5px;
-                        border: none;
+                        border: 1px solid #7f8c8d;
                     }
                     QPushButton:hover {
-                        background-color: #6c7a7b;
+                        background-color: #7f8c8d;
                     }
                 """)
             else:
@@ -173,7 +161,7 @@ class CustomMessageBox(QDialog):
                         font-size: 14px;
                         padding: 8px 20px;
                         border-radius: 5px;
-                        border: none;
+                        border: 1px solid #2980b9;
                     }
                     QPushButton:hover {
                         background-color: #2980b9;
@@ -188,7 +176,8 @@ class CustomMessageBox(QDialog):
         self.setLayout(layout)
         self.setStyleSheet("""
             QDialog {
-                background-color: #2c3e50;
+                background-color: #fafafa;
+                border: 1px solid #bdbdbd;
                 border-radius: 10px;
             }
         """)
@@ -323,13 +312,13 @@ class ScriptFileSelector(QDialog):
         
         # タイトル
         title = QLabel("📁 実行するスクリプトファイルを選択してください")
-        title.setStyleSheet("font-size: 16px; font-weight: bold; color: #ecf0f1; padding: 10px;")
+        title.setStyleSheet("font-size: 16px; font-weight: bold; color: #212121; padding: 10px;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
         # フォルダパス表示
         path_label = QLabel(f"フォルダ: {self.folder_path}")
-        path_label.setStyleSheet("color: #bdc3c7; font-style: italic; padding: 5px;")
+        path_label.setStyleSheet("color: #616161; font-style: italic; padding: 5px;")
         layout.addWidget(path_label)
         
         # ツリービュー
@@ -392,7 +381,7 @@ class ScriptFileSelector(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: #ecf0f1; }")
+        self.setStyleSheet("QDialog { background-color: #fafafa; border: 1px solid #bdbdbd; } QLabel { color: #212121; }")
     
     def populate_tree(self):
         """ツリーにファイルを追加"""
@@ -604,7 +593,7 @@ class NewCassetteWizard(QDialog):
         
         # タイトル
         title = QLabel("🎮 新規カセット作成ウィザード")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #ecf0f1; padding: 8px;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #212121; padding: 8px;")
         title.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title)
         
@@ -631,7 +620,7 @@ class NewCassetteWizard(QDialog):
         step1_layout = QVBoxLayout()
         
         step1_label = QLabel("ステップ 1: アプリフォルダを選択")
-        step1_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #ecf0f1;")
+        step1_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #212121;")
         step1_layout.addWidget(step1_label)
         
         folder_layout = QHBoxLayout()
@@ -657,7 +646,7 @@ class NewCassetteWizard(QDialog):
         step2_layout = QVBoxLayout()
         
         step2_label = QLabel("ステップ 2: 実行ファイルを選択")
-        step2_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #ecf0f1;")
+        step2_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #212121;")
         step2_layout.addWidget(step2_label)
         
         script_select_layout = QHBoxLayout()
@@ -691,7 +680,7 @@ class NewCassetteWizard(QDialog):
         step3_layout = QVBoxLayout()
         
         step3_label = QLabel("ステップ 3: カセット情報を入力")
-        step3_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #ecf0f1;")
+        step3_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #212121;")
         step3_layout.addWidget(step3_label)
         
         # タイトル
@@ -804,7 +793,7 @@ class NewCassetteWizard(QDialog):
         main_layout.addLayout(button_layout)
         
         self.setLayout(main_layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: #ecf0f1; }")
+        self.setStyleSheet("QDialog { background-color: #fafafa; border: 1px solid #bdbdbd; } QLabel { color: #212121; }")
     
     def select_folder(self):
         """フォルダを選択"""
@@ -1015,7 +1004,7 @@ class CassetteCard(QFrame):
         title_label.setWordWrap(True)
         title_label.setStyleSheet("""
             QLabel {
-                color: #ecf0f1;
+                color: #212121;
                 font-size: 14px;
                 font-weight: bold;
                 padding: 5px;
@@ -1029,7 +1018,7 @@ class CassetteCard(QFrame):
             tags_label.setAlignment(Qt.AlignCenter)
             tags_label.setStyleSheet("""
                 QLabel {
-                    color: #bdc3c7;
+                    color: #616161;
                     font-size: 10px;
                 }
             """)
@@ -1038,13 +1027,13 @@ class CassetteCard(QFrame):
         self.setLayout(layout)
         self.setStyleSheet("""
             CassetteCard {
-                background-color: #2c3e50;
+                background-color: #ffffff;
                 border-radius: 15px;
-                border: 2px solid #34495e;
+                border: 2px solid #e0e0e0;
             }
             CassetteCard:hover {
                 border: 2px solid #3498db;
-                background-color: #34495e;
+                background-color: #f5f5f5;
             }
         """)
     
@@ -1197,7 +1186,7 @@ class CarouselWidget(QWidget):
         
         if not self.filtered_cassettes:
             no_result = QLabel("該当するカセットがありません")
-            no_result.setStyleSheet("color: #bdc3c7; font-size: 16px;")
+            no_result.setStyleSheet("color: #616161; font-size: 16px;")
             no_result.setAlignment(Qt.AlignCenter)
             self.card_layout.addWidget(no_result)
             self.cards.append(no_result)
@@ -1215,7 +1204,7 @@ class CarouselWidget(QWidget):
             if idx == self.current_index:
                 card.setStyleSheet("""
                     CassetteCard {
-                        background-color: #34495e;
+                        background-color: #e3f2fd;
                         border-radius: 15px;
                         border: 3px solid #e74c3c;
                     }
@@ -1389,7 +1378,7 @@ class SlotAssignDialog(QDialog):
         
         # タイトル
         title = QLabel(f"スロット {self.slot_number} に割り当てるカセットを選択")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #ecf0f1;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #212121;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
@@ -1428,7 +1417,7 @@ class SlotAssignDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; }")
+        self.setStyleSheet("QDialog { background-color: #fafafa; border: 1px solid #bdbdbd; }")
     
     def get_button_style(self, color):
         """ボタンスタイルを取得"""
@@ -1523,12 +1512,17 @@ class GameButton(QPushButton):
             self.setIcon(QIcon())
             self.setStyleSheet("""
                 QPushButton {
-                    background-color: #34495e;
-                    color: #ecf0f1;
-                    border: 3px dashed #7f8c8d;
+                    background-color: #f5f5f5;
+                    color: #757575;
+                    border: 3px dashed #bdbdbd;
                     border-radius: 10px;
                     font-size: 12px;
+                    font-weight: bold;
                     padding: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #eeeeee;
+                    border: 3px dashed #9e9e9e;
                 }
             """)
     
@@ -1615,7 +1609,7 @@ class ExecutionLogDialog(QDialog):
         
         # タイトル
         title = QLabel("📊 実行ログ")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #ecf0f1;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #212121;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
@@ -1670,7 +1664,7 @@ class ExecutionLogDialog(QDialog):
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
-        self.setStyleSheet("QDialog { background-color: #2c3e50; } QLabel { color: #ecf0f1; }")
+        self.setStyleSheet("QDialog { background-color: #fafafa; border: 1px solid #bdbdbd; } QLabel { color: #212121; }")
     
     def clear_logs(self):
         """ログをクリア"""
@@ -1709,8 +1703,8 @@ class HelpDialog(QDialog):
         <head>
             <style>
                 body {
-                    background-color: #2c3e50;
-                    color: #ecf0f1;
+                    background-color: #fafafa;
+                    color: #212121;
                     font-family: Arial, sans-serif;
                     padding: 10px;
                 }
@@ -1729,24 +1723,24 @@ class HelpDialog(QDialog):
                     margin-bottom: 5px;
                 }
                 p {
-                    color: #bdc3c7;
+                    color: #616161;
                     margin: 5px 0;
                     line-height: 1.6;
                 }
                 i {
-                    color: #95a5a6;
+                    color: #757575;
                     font-size: 0.9em;
                 }
                 hr {
                     border: none;
-                    border-top: 1px solid #34495e;
+                    border-top: 1px solid #e0e0e0;
                     margin: 15px 0;
                 }
                 .empty-slot {
-                    color: #7f8c8d;
+                    color: #9e9e9e;
                 }
                 .favorite {
-                    color: #f39c12;
+                    color: #ff9800;
                 }
             </style>
         </head>
@@ -1764,7 +1758,7 @@ class HelpDialog(QDialog):
                 content += f"<p>{description}</p>"
                 
                 if button.cassette.tags:
-                    tags_html = ", ".join([f"<span style='background-color: #34495e; padding: 2px 8px; border-radius: 3px;'>#{tag}</span>" for tag in button.cassette.tags])
+                    tags_html = ", ".join([f"<span style='background-color: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 3px;'>#{tag}</span>" for tag in button.cassette.tags])
                     content += f"<p>🏷️ タグ: {tags_html}</p>"
                 
                 if button.cassette.script_path:
@@ -1787,8 +1781,8 @@ class HelpDialog(QDialog):
         # QTextEditのスタイル
         help_text.setStyleSheet("""
             QTextEdit {
-                background-color: #2c3e50;
-                border: 1px solid #34495e;
+                background-color: #fafafa;
+                border: 1px solid #e0e0e0;
                 border-radius: 5px;
                 padding: 10px;
             }
@@ -1819,7 +1813,10 @@ class HelpDialog(QDialog):
         self.setLayout(layout)
         self.setStyleSheet("""
             QDialog {
-                background-color: #2c3e50;
+                background-color: #ffffff;
+            }
+            QLabel {
+                color: #212121;
             }
         """)
 
@@ -1909,35 +1906,12 @@ class MainWindow(QMainWindow):
         self.buttons = []
         self.cassettes = []
         self.is_admin_mode = False
-        self.current_theme = "ダークモード"
         self.execution_log = ExecutionLog(self.log_file)
         
-        self.load_config()
         self.load_cassettes()
         self.setup_ui()
-        self.apply_theme()
+        self.apply_light_theme()
         self.load_last_save()
-    
-    def load_config(self):
-        """設定を読み込み"""
-        if self.config_file.exists():
-            try:
-                with open(self.config_file, 'r', encoding='utf-8') as f:
-                    config = json.load(f)
-                    self.current_theme = config.get('theme', 'ダークモード')
-            except Exception as e:
-                print(f"設定読み込みエラー: {e}")
-    
-    def save_config(self):
-        """設定を保存"""
-        config = {
-            'theme': self.current_theme
-        }
-        try:
-            with open(self.config_file, 'w', encoding='utf-8') as f:
-                json.dump(config, f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            print(f"設定保存エラー: {e}")
     
     def load_cassettes(self):
         """カセットを読み込み"""
@@ -1967,7 +1941,7 @@ class MainWindow(QMainWindow):
         title_font.setBold(True)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("color: #ecf0f1; padding: 10px;")
+        title_label.setStyleSheet("color: #212121; padding: 10px;")
         main_layout.addWidget(title_label)
         
         # ボタングリッド
@@ -2014,11 +1988,6 @@ class MainWindow(QMainWindow):
         log_button.setStyleSheet(self.get_control_button_style("#16a085"))
         control_layout.addWidget(log_button)
         
-        theme_button = QPushButton("🎨 テーマ")
-        theme_button.clicked.connect(self.change_theme)
-        theme_button.setStyleSheet(self.get_control_button_style("#e67e22"))
-        control_layout.addWidget(theme_button)
-        
         help_button = QPushButton("❓ ヘルプ")
         help_button.clicked.connect(self.show_help)
         help_button.setStyleSheet(self.get_control_button_style("#f39c12"))
@@ -2047,22 +2016,21 @@ class MainWindow(QMainWindow):
             }}
         """
     
-    def apply_theme(self):
-        """テーマを適用"""
-        theme = THEMES.get(self.current_theme, THEMES["ダークモード"])
-        
+    def apply_light_theme(self):
+        """ライトテーマを適用"""
         self.setStyleSheet(f"""
             QMainWindow {{
-                background: {theme['background']};
+                background: {COLORS['background_gradient']};
             }}
             QWidget {{
-                color: {theme['text_color']};
+                color: {COLORS['text_primary']};
             }}
         """)
         
         self.button_frame.setStyleSheet(f"""
             QFrame {{
-                background-color: {theme['button_frame']};
+                background-color: {COLORS['button_frame']};
+                border: 1px solid {COLORS['border']};
                 border-radius: 20px;
                 padding: 20px;
             }}
@@ -2071,26 +2039,6 @@ class MainWindow(QMainWindow):
         # ボタンの表示を更新
         for button in self.buttons:
             button.update_display()
-    
-    def change_theme(self):
-        """テーマを変更"""
-        theme_names = list(THEMES.keys())
-        current_index = theme_names.index(self.current_theme) if self.current_theme in theme_names else 0
-        
-        theme, ok = QInputDialog.getItem(
-            self,
-            "テーマ選択",
-            "テーマを選択してください:",
-            theme_names,
-            current_index,
-            False
-        )
-        
-        if ok and theme:
-            self.current_theme = theme
-            self.apply_theme()
-            self.save_config()
-            CustomMessageBox.information(self, "テーマ変更", f"テーマを「{theme}」に変更しました。")
     
     def create_new_cassette(self):
         """新規カセットを作成"""
