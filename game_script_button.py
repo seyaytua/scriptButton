@@ -48,6 +48,177 @@ THEMES = {
     }
 }
 
+class CustomMessageBox(QDialog):
+    """カスタムメッセージボックス（適切なスタイリング付き）"""
+    
+    @staticmethod
+    def show_message(parent, title, message, icon_type="information", buttons=None):
+        """メッセージを表示
+        
+        Args:
+            parent: 親ウィジェット
+            title: タイトル
+            message: メッセージ本文
+            icon_type: アイコンタイプ ("information", "warning", "error", "question")
+            buttons: ボタンのリスト (Noneの場合は["OK"])
+        
+        Returns:
+            クリックされたボタンのテキスト
+        """
+        dialog = CustomMessageBox(parent, title, message, icon_type, buttons)
+        dialog.exec_()
+        return dialog.clicked_button
+    
+    def __init__(self, parent, title, message, icon_type="information", buttons=None):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setMinimumWidth(400)
+        self.clicked_button = None
+        
+        if buttons is None:
+            buttons = ["OK"]
+        
+        # アイコンマッピング
+        icon_map = {
+            "information": "ℹ️",
+            "warning": "⚠️",
+            "error": "❌",
+            "question": "❓"
+        }
+        
+        # カラーマッピング
+        color_map = {
+            "information": "#3498db",
+            "warning": "#f39c12",
+            "error": "#e74c3c",
+            "question": "#9b59b6"
+        }
+        
+        layout = QVBoxLayout()
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        # アイコンとメッセージのレイアウト
+        content_layout = QHBoxLayout()
+        
+        # アイコン
+        icon_label = QLabel(icon_map.get(icon_type, "ℹ️"))
+        icon_label.setStyleSheet(f"""
+            QLabel {{
+                font-size: 48px;
+                color: {color_map.get(icon_type, '#3498db')};
+            }}
+        """)
+        icon_label.setAlignment(Qt.AlignTop)
+        content_layout.addWidget(icon_label)
+        
+        # メッセージ
+        message_label = QLabel(message)
+        message_label.setWordWrap(True)
+        message_label.setStyleSheet("""
+            QLabel {
+                color: #ecf0f1;
+                font-size: 14px;
+                padding: 10px;
+            }
+        """)
+        content_layout.addWidget(message_label, 1)
+        
+        layout.addLayout(content_layout)
+        
+        # ボタン
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+        
+        for button_text in buttons:
+            btn = QPushButton(button_text)
+            btn.setMinimumWidth(100)
+            btn.setMinimumHeight(35)
+            
+            # ボタンのスタイル
+            if button_text in ["OK", "はい", "Yes"]:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #27ae60;
+                        color: white;
+                        font-size: 14px;
+                        font-weight: bold;
+                        padding: 8px 20px;
+                        border-radius: 5px;
+                        border: none;
+                    }
+                    QPushButton:hover {
+                        background-color: #229954;
+                    }
+                """)
+            elif button_text in ["キャンセル", "いいえ", "No", "Cancel"]:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #7f8c8d;
+                        color: white;
+                        font-size: 14px;
+                        padding: 8px 20px;
+                        border-radius: 5px;
+                        border: none;
+                    }
+                    QPushButton:hover {
+                        background-color: #6c7a7b;
+                    }
+                """)
+            else:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #3498db;
+                        color: white;
+                        font-size: 14px;
+                        padding: 8px 20px;
+                        border-radius: 5px;
+                        border: none;
+                    }
+                    QPushButton:hover {
+                        background-color: #2980b9;
+                    }
+                """)
+            
+            btn.clicked.connect(lambda checked, text=button_text: self.on_button_clicked(text))
+            button_layout.addWidget(btn)
+        
+        layout.addLayout(button_layout)
+        
+        self.setLayout(layout)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #2c3e50;
+                border-radius: 10px;
+            }
+        """)
+    
+    def on_button_clicked(self, button_text):
+        """ボタンクリック時の処理"""
+        self.clicked_button = button_text
+        self.accept()
+    
+    @staticmethod
+    def information(parent, title, message):
+        """情報メッセージを表示"""
+        return CustomMessageBox.show_message(parent, title, message, "information", ["OK"])
+    
+    @staticmethod
+    def warning(parent, title, message):
+        """警告メッセージを表示"""
+        return CustomMessageBox.show_message(parent, title, message, "warning", ["OK"])
+    
+    @staticmethod
+    def critical(parent, title, message):
+        """エラーメッセージを表示"""
+        return CustomMessageBox.show_message(parent, title, message, "error", ["OK"])
+    
+    @staticmethod
+    def question(parent, title, message):
+        """質問メッセージを表示"""
+        result = CustomMessageBox.show_message(parent, title, message, "question", ["はい", "いいえ"])
+        return result == "はい"
+
 class ExecutionLog:
     """実行ログ管理クラス"""
     def __init__(self, log_file):
@@ -310,12 +481,12 @@ class ScriptFileSelector(QDialog):
         """ファイルを選択"""
         current_item = self.tree.currentItem()
         if not current_item:
-            QMessageBox.warning(self, "警告", "ファイルを選択してください。")
+            CustomMessageBox.warning(self, "警告", "ファイルを選択してください。")
             return
         
         script_path = current_item.data(0, Qt.UserRole)
         if not script_path:
-            QMessageBox.warning(self, "警告", "実行可能なファイルを選択してください。")
+            CustomMessageBox.warning(self, "警告", "実行可能なファイルを選択してください。")
             return
         
         self.selected_script = script_path
@@ -653,7 +824,7 @@ class NewCassetteWizard(QDialog):
     def select_script(self):
         """スクリプトファイルを選択"""
         if not self.source_folder:
-            QMessageBox.warning(self, "警告", "先にフォルダを選択してください。")
+            CustomMessageBox.warning(self, "警告", "先にフォルダを選択してください。")
             return
         
         dialog = ScriptFileSelector(self.source_folder, self.script_file, self)
@@ -712,16 +883,16 @@ class NewCassetteWizard(QDialog):
     def create_cassette(self):
         """カセットを作成"""
         if not self.source_folder:
-            QMessageBox.warning(self, "エラー", "フォルダを選択してください。")
+            CustomMessageBox.warning(self, "エラー", "フォルダを選択してください。")
             return
         
         if not self.script_file:
-            QMessageBox.warning(self, "エラー", "実行ファイルを選択してください。")
+            CustomMessageBox.warning(self, "エラー", "実行ファイルを選択してください。")
             return
         
         title = self.title_input.text().strip()
         if not title:
-            QMessageBox.warning(self, "エラー", "タイトルを入力してください。")
+            CustomMessageBox.warning(self, "エラー", "タイトルを入力してください。")
             return
         
         # カセットフォルダ名を生成（安全な名前に変換）
@@ -730,13 +901,12 @@ class NewCassetteWizard(QDialog):
         
         # 既存チェック
         if cassette_folder.exists():
-            reply = QMessageBox.question(
+            reply = CustomMessageBox.question(
                 self,
                 "確認",
-                f"'{safe_name}' は既に存在します。上書きしますか？",
-                QMessageBox.Yes | QMessageBox.No
+                f"'{safe_name}' は既に存在します。上書きしますか？"
             )
-            if reply == QMessageBox.No:
+            if not reply:
                 return
             shutil.rmtree(cassette_folder)
         
@@ -782,7 +952,7 @@ class NewCassetteWizard(QDialog):
             
             progress.setValue(100)
             
-            QMessageBox.information(
+            CustomMessageBox.information(
                 self,
                 "完成",
                 f"カセット '{title}' を作成しました！\n\n保存先: {cassette_folder}\n実行ファイル: {script_relative}"
@@ -791,7 +961,7 @@ class NewCassetteWizard(QDialog):
             
         except Exception as e:
             progress.close()
-            QMessageBox.critical(self, "エラー", f"カセットの作成に失敗しました:\n{str(e)}")
+            CustomMessageBox.critical(self, "エラー", f"カセットの作成に失敗しました:\n{str(e)}")
 
 class CassetteCard(QFrame):
     """カセットカード（Switch風）"""
@@ -1504,62 +1674,154 @@ class ExecutionLogDialog(QDialog):
     
     def clear_logs(self):
         """ログをクリア"""
-        reply = QMessageBox.question(
+        reply = CustomMessageBox.question(
             self,
             "確認",
-            "すべての実行ログを削除しますか？",
-            QMessageBox.Yes | QMessageBox.No
+            "すべての実行ログを削除しますか？"
         )
         
-        if reply == QMessageBox.Yes:
+        if reply:
             self.execution_log.logs = []
             self.execution_log.save_logs()
             self.table.setRowCount(0)
-            QMessageBox.information(self, "完了", "ログをクリアしました。")
+            CustomMessageBox.information(self, "完了", "ログをクリアしました。")
 
 class HelpDialog(QDialog):
     """ヘルプダイアログ"""
     def __init__(self, buttons, parent=None):
         super().__init__(parent)
         self.setWindowTitle("ヘルプ - ボタンの説明")
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(700, 500)
         self.buttons = buttons
         self.setup_ui()
     
     def setup_ui(self):
         """UIのセットアップ"""
         layout = QVBoxLayout()
+        layout.setContentsMargins(20, 20, 20, 20)
         
         help_text = QTextEdit()
         help_text.setReadOnly(True)
         
-        content = "<h2>スクリプトボタン ヘルプ</h2>"
-        content += "<h3>各ボタンの説明:</h3>"
+        # HTMLスタイル付きコンテンツ
+        content = """
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #2c3e50;
+                    color: #ecf0f1;
+                    font-family: Arial, sans-serif;
+                    padding: 10px;
+                }
+                h2 {
+                    color: #3498db;
+                    border-bottom: 2px solid #3498db;
+                    padding-bottom: 10px;
+                }
+                h3 {
+                    color: #e74c3c;
+                    margin-top: 20px;
+                }
+                h4 {
+                    color: #27ae60;
+                    margin-top: 15px;
+                    margin-bottom: 5px;
+                }
+                p {
+                    color: #bdc3c7;
+                    margin: 5px 0;
+                    line-height: 1.6;
+                }
+                i {
+                    color: #95a5a6;
+                    font-size: 0.9em;
+                }
+                hr {
+                    border: none;
+                    border-top: 1px solid #34495e;
+                    margin: 15px 0;
+                }
+                .empty-slot {
+                    color: #7f8c8d;
+                }
+                .favorite {
+                    color: #f39c12;
+                }
+            </style>
+        </head>
+        <body>
+            <h2>🎮 スクリプトボタン ヘルプ</h2>
+            <h3>📋 各ボタンの説明:</h3>
+        """
         
         for i, button in enumerate(self.buttons, 1):
             if button.cassette:
-                fav = "⭐ " if button.cassette.is_favorite else ""
+                fav = "<span class='favorite'>⭐</span> " if button.cassette.is_favorite else ""
                 content += f"<h4>スロット {i}: {fav}{button.cassette.name}</h4>"
-                content += f"<p>{button.cassette.description if button.cassette.description else '説明なし'}</p>"
+                
+                description = button.cassette.description if button.cassette.description else "<span class='empty-slot'>説明なし</span>"
+                content += f"<p>{description}</p>"
+                
                 if button.cassette.tags:
-                    content += f"<p><i>タグ: {', '.join(button.cassette.tags)}</i></p>"
+                    tags_html = ", ".join([f"<span style='background-color: #34495e; padding: 2px 8px; border-radius: 3px;'>#{tag}</span>" for tag in button.cassette.tags])
+                    content += f"<p>🏷️ タグ: {tags_html}</p>"
+                
                 if button.cassette.script_path:
                     relative_path = button.cassette.script_path.relative_to(button.cassette.folder_path)
-                    content += f"<p><i>スクリプト: {relative_path}</i></p>"
+                    content += f"<p><i>📄 スクリプト: {relative_path}</i></p>"
+                
                 content += "<hr>"
             else:
-                content += f"<h4>スロット {i}: 空き</h4>"
-                content += "<p>カセットが割り当てられていません</p>"
+                content += f"<h4>スロット {i}: <span class='empty-slot'>空き</span></h4>"
+                content += "<p class='empty-slot'>カセットが割り当てられていません</p>"
                 content += "<hr>"
         
+        content += """
+        </body>
+        </html>
+        """
+        
         help_text.setHtml(content)
+        
+        # QTextEditのスタイル
+        help_text.setStyleSheet("""
+            QTextEdit {
+                background-color: #2c3e50;
+                border: 1px solid #34495e;
+                border-radius: 5px;
+                padding: 10px;
+            }
+        """)
+        
         layout.addWidget(help_text)
         
+        # 閉じるボタン
         close_button = QPushButton("閉じる")
+        close_button.setMinimumHeight(40)
+        close_button.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                padding: 10px 30px;
+                border-radius: 5px;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
         close_button.clicked.connect(self.accept)
         layout.addWidget(close_button)
         
         self.setLayout(layout)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #2c3e50;
+            }
+        """)
 
 class SaveLoadDialog(QDialog):
     """セーブ/ロードダイアログ"""
@@ -1610,13 +1872,13 @@ class SaveLoadDialog(QDialog):
         if self.mode == 'save':
             save_name = self.save_name_input.text().strip()
             if not save_name:
-                QMessageBox.warning(self, "エラー", "セーブ名を入力してください")
+                CustomMessageBox.warning(self, "エラー", "セーブ名を入力してください")
                 return
             self.selected_file = self.saves_dir / f"{save_name}.json"
         else:
             current_item = self.save_list.currentItem()
             if not current_item:
-                QMessageBox.warning(self, "エラー", "セーブデータを選択してください")
+                CustomMessageBox.warning(self, "エラー", "セーブデータを選択してください")
                 return
             self.selected_file = self.saves_dir / f"{current_item.text()}.json"
         
@@ -1828,14 +2090,14 @@ class MainWindow(QMainWindow):
             self.current_theme = theme
             self.apply_theme()
             self.save_config()
-            QMessageBox.information(self, "テーマ変更", f"テーマを「{theme}」に変更しました。")
+            CustomMessageBox.information(self, "テーマ変更", f"テーマを「{theme}」に変更しました。")
     
     def create_new_cassette(self):
         """新規カセットを作成"""
         dialog = NewCassetteWizard(self.cassettes_dir, self)
         if dialog.exec_() == QDialog.Accepted:
             self.load_cassettes()
-            QMessageBox.information(self, "成功", "カセットを作成しました！\n管理者モードでボタンに割り当ててください。")
+            CustomMessageBox.information(self, "成功", "カセットを作成しました！\n管理者モードでボタンに割り当ててください。")
     
     def toggle_mode(self):
         """モード切り替え"""
@@ -1851,14 +2113,14 @@ class MainWindow(QMainWindow):
                 self.is_admin_mode = True
                 self.mode_button.setText("🔓 ユーザーモード")
                 self.mode_button.setStyleSheet(self.get_control_button_style("#27ae60"))
-                QMessageBox.information(self, "モード変更", "管理者モードに切り替えました。\n\n機能:\n• ボタンをクリックしてカセット割り当て\n• ボタンをドラッグして位置交換")
+                CustomMessageBox.information(self, "モード変更", "管理者モードに切り替えました。\n\n機能:\n• ボタンをクリックしてカセット割り当て\n• ボタンをドラッグして位置交換")
             elif ok:
-                QMessageBox.warning(self, "エラー", "パスワードが正しくありません。")
+                CustomMessageBox.warning(self, "エラー", "パスワードが正しくありません。")
         else:
             self.is_admin_mode = False
             self.mode_button.setText("🔒 管理者モード")
             self.mode_button.setStyleSheet(self.get_control_button_style("#e74c3c"))
-            QMessageBox.information(self, "モード変更", "ユーザーモードに切り替えました。")
+            CustomMessageBox.information(self, "モード変更", "ユーザーモードに切り替えました。")
     
     def swap_buttons(self, slot1, slot2):
         """ボタンの位置を交換"""
@@ -1870,19 +2132,18 @@ class MainWindow(QMainWindow):
         button1.set_cassette(button2.cassette)
         button2.set_cassette(temp_cassette)
         
-        QMessageBox.information(self, "交換完了", f"スロット {slot1} と スロット {slot2} を交換しました。")
+        CustomMessageBox.information(self, "交換完了", f"スロット {slot1} と スロット {slot2} を交換しました。")
     
     def on_button_clicked(self, button):
         """ボタンクリック時の処理"""
         if self.is_admin_mode:
             if not self.cassettes:
-                reply = QMessageBox.question(
+                reply = CustomMessageBox.question(
                     self,
                     "カセットがありません",
-                    "カセットが見つかりません。\n新規カセットを作成しますか？",
-                    QMessageBox.Yes | QMessageBox.No
+                    "カセットが見つかりません。\n新規カセットを作成しますか？"
                 )
-                if reply == QMessageBox.Yes:
+                if reply:
                     self.create_new_cassette()
                 return
             
@@ -1898,12 +2159,12 @@ class MainWindow(QMainWindow):
             if button.cassette:
                 self.execute_script(button.cassette)
             else:
-                QMessageBox.information(self, "情報", f"スロット {button.slot_number} にはカセットが割り当てられていません。")
+                CustomMessageBox.information(self, "情報", f"スロット {button.slot_number} にはカセットが割り当てられていません。")
     
     def execute_script(self, cassette):
         """スクリプトを実行"""
         if not cassette.script_path.exists():
-            QMessageBox.critical(self, "エラー", f"スクリプトが見つかりません: {cassette.script_path}")
+            CustomMessageBox.critical(self, "エラー", f"スクリプトが見つかりません: {cassette.script_path}")
             return
         
         try:
@@ -1915,9 +2176,9 @@ class MainWindow(QMainWindow):
             # 実行ログに記録
             self.execution_log.add_log(cassette.name, cassette.folder_path.name)
             
-            QMessageBox.information(self, "実行", f"「{cassette.name}」を起動しました！")
+            CustomMessageBox.information(self, "実行", f"「{cassette.name}」を起動しました！")
         except Exception as e:
-            QMessageBox.critical(self, "エラー", f"スクリプトの実行に失敗しました: {str(e)}")
+            CustomMessageBox.critical(self, "エラー", f"スクリプトの実行に失敗しました: {str(e)}")
     
     def show_execution_log(self):
         """実行ログを表示"""
@@ -1945,9 +2206,9 @@ class MainWindow(QMainWindow):
             try:
                 with open(save_file, 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=2, ensure_ascii=False)
-                QMessageBox.information(self, "保存完了", f"設定を保存しました: {save_file.name}")
+                CustomMessageBox.information(self, "保存完了", f"設定を保存しました: {save_file.name}")
             except Exception as e:
-                QMessageBox.critical(self, "エラー", f"保存に失敗しました: {str(e)}")
+                CustomMessageBox.critical(self, "エラー", f"保存に失敗しました: {str(e)}")
     
     def load_configuration(self):
         """設定を読み込み"""
@@ -1974,9 +2235,9 @@ class MainWindow(QMainWindow):
                     if cassette:
                         self.buttons[slot - 1].set_cassette(cassette)
             
-            QMessageBox.information(self, "読み込み完了", f"設定を読み込みました: {save_file.name}")
+            CustomMessageBox.information(self, "読み込み完了", f"設定を読み込みました: {save_file.name}")
         except Exception as e:
-            QMessageBox.critical(self, "エラー", f"読み込みに失敗しました: {str(e)}")
+            CustomMessageBox.critical(self, "エラー", f"読み込みに失敗しました: {str(e)}")
     
     def load_last_save(self):
         """最後のセーブを読み込み"""
