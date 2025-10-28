@@ -1,0 +1,51 @@
+PySide6>=6.8.0
+
+pandas>=2.1.4
+numpy>=1.26.4,<2.0.0
+# Excel Handling
+openpyxl>=3.1.2
+xlrd>=2.0.1
+# PDF/Image Processing
+Pillow>=10.2.0
+PyPDF2>=3.0.1
+PyMuPDF>=1.23.8
+pypdf>=3.17.0,<4.0.0
+reportlab>=4.0.9
+cairosvg>=2.7.0,<3.0.0
+# Database
+SQLAlchemy>=2.0.25
+# Utilities
+python-dateutil>=2.8.2
+pytz>=2023.3
+pyperclip>=1.8.2
+pyserial>=3.5
+python-barcode>=0.15.1
+qrcode>=7.4.2
+requests>=2.31.0
+python-dotenv>=1.0.0
+# Visualization/Graphs
+matplotlib>=3.8.0
+networkx>=3.2
+plotly>=5.18.0
+# Document Processing
+python-docx>=1.0.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+markdown>=3.5.2
+# Math/Scientific Computing
+sympy>=1.12
+# Development/Testing
+pytest>=7.4.3
+pytest-cov>=4.1.0
+pytest-qt>=4.2.0,<5.0.0
+black>=23.12.1
+flake8>=7.0.0
+# Build Tools
+pyinstaller>=6.3.0
+# Other
+playwright>=1.40.0,<1.60.0
+pix2tex[gui]
+Sphinx>=5.0.0,<8.0.0
+
+ 
+ 
