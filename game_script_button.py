@@ -511,12 +511,29 @@ class CassetteInfo:
                     self.tags = data.get('tags', [])
                     self.is_favorite = data.get('is_favorite', False)
                     
-                    # スクリプトパス（相対パスで保存されている場合に対応）
-                    script_name = data.get('script', 'main.py')
-                    self.script_path = self.folder_path / script_name
-                    
-                    icon_name = data.get('icon', 'icon.png')
-                    self.icon_path = self.folder_path / icon_name
+                    # 参照方式の場合
+                    source_folder = data.get('source_folder')
+                    if source_folder:
+                        source_path = Path(source_folder)
+                        if source_path.exists():
+                            # スクリプトパス
+                            script_name = data.get('script', 'main.py')
+                            self.script_path = source_path / script_name
+                            
+                            # アイコンパス
+                            icon_name = data.get('icon', 'icon.png')
+                            self.icon_path = source_path / icon_name
+                        else:
+                            print(f"警告: 参照元フォルダが見つかりません: {source_folder}")
+                            self.script_path = None
+                            self.icon_path = None
+                    else:
+                        # 従来のコピー方式（後方互換性）
+                        script_name = data.get('script', 'main.py')
+                        self.script_path = self.folder_path / script_name
+                        
+                        icon_name = data.get('icon', 'icon.png')
+                        self.icon_path = self.folder_path / icon_name
             except Exception as e:
                 print(f"カセット情報の読み込みエラー: {e}")
         
@@ -526,8 +543,22 @@ class CassetteInfo:
         
         # デフォルトのアイコンを探す
         if not self.icon_path or not self.icon_path.exists():
+            search_path = self.folder_path
+            # 参照方式の場合は元のフォルダを検索
+            if info_file.exists():
+                try:
+                    with open(info_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        source_folder = data.get('source_folder')
+                        if source_folder:
+                            source_path = Path(source_folder)
+                            if source_path.exists():
+                                search_path = source_path
+                except:
+                    pass
+            
             for ext in ['.png', '.jpg', '.ico']:
-                icons = list(self.folder_path.glob(f'*{ext}'))
+                icons = list(search_path.glob(f'*{ext}'))
                 if icons:
                     self.icon_path = icons[0]
                     break
@@ -554,19 +585,51 @@ class CassetteInfo:
         """カセット情報を保存"""
         info_file = self.folder_path / "info.json"
         
-        # スクリプトパスを相対パスで保存
-        script_relative = self.script_path.relative_to(self.folder_path) if self.script_path else Path('main.py')
-        icon_relative = self.icon_path.relative_to(self.folder_path) if self.icon_path else Path('icon.png')
+        # 参照方式かどうかを判定
+        is_reference = False
+        source_folder_path = None
         
-        data = {
-            'name': self.name,
-            'description': self.description,
-            'icon_color': self.icon_color,
-            'tags': self.tags,
-            'is_favorite': self.is_favorite,
-            'script': str(script_relative),
-            'icon': str(icon_relative)
-        }
+        if info_file.exists():
+            try:
+                with open(info_file, 'r', encoding='utf-8') as f:
+                    existing_data = json.load(f)
+                    source_folder_path = existing_data.get('source_folder')
+                    if source_folder_path:
+                        is_reference = True
+            except:
+                pass
+        
+        if is_reference and source_folder_path:
+            # 参照方式の場合
+            source_path = Path(source_folder_path)
+            script_relative = self.script_path.relative_to(source_path) if self.script_path and source_path in self.script_path.parents else Path('main.py')
+            icon_relative = self.icon_path.relative_to(source_path) if self.icon_path and source_path in self.icon_path.parents else Path('icon.png')
+            
+            data = {
+                'name': self.name,
+                'description': self.description,
+                'icon_color': self.icon_color,
+                'tags': self.tags,
+                'is_favorite': self.is_favorite,
+                'source_folder': str(source_path),
+                'script': str(script_relative),
+                'icon': str(icon_relative)
+            }
+        else:
+            # コピー方式（従来通り）
+            script_relative = self.script_path.relative_to(self.folder_path) if self.script_path else Path('main.py')
+            icon_relative = self.icon_path.relative_to(self.folder_path) if self.icon_path else Path('icon.png')
+            
+            data = {
+                'name': self.name,
+                'description': self.description,
+                'icon_color': self.icon_color,
+                'tags': self.tags,
+                'is_favorite': self.is_favorite,
+                'script': str(script_relative),
+                'icon': str(icon_relative)
+            }
+        
         try:
             with open(info_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
@@ -905,24 +968,30 @@ class NewCassetteWizard(QDialog):
         progress.setValue(10)
         
         try:
-            # フォルダをコピー
-            progress.setLabelText("フォルダをコピー中...")
-            shutil.copytree(self.source_folder, cassette_folder)
+            # カセットフォルダを作成（参照方式なのでinfo.jsonのみ）
+            cassette_folder.mkdir(parents=True, exist_ok=True)
+            progress.setValue(30)
+            
+            # スクリプトの相対パスを計算
+            progress.setLabelText("参照情報を作成中...")
+            script_relative = Path(self.script_file).relative_to(self.source_folder)
             progress.setValue(50)
             
-            # アイコンをコピー
-            icon_path = None
+            # アイコンの相対パス
+            icon_relative = None
             if self.icon_input.text():
-                progress.setLabelText("アイコンをコピー中...")
                 icon_source = Path(self.icon_input.text())
-                icon_dest = cassette_folder / f"icon{icon_source.suffix}"
-                shutil.copy2(icon_source, icon_dest)
-                icon_path = icon_dest.relative_to(cassette_folder)
+                try:
+                    icon_relative = icon_source.relative_to(self.source_folder)
+                except ValueError:
+                    # 外部ファイルの場合はカセットフォルダにコピー
+                    icon_dest = cassette_folder / f"icon{icon_source.suffix}"
+                    shutil.copy2(icon_source, icon_dest)
+                    icon_relative = icon_dest.name
             progress.setValue(70)
             
-            # info.jsonを作成
+            # info.jsonを作成（参照方式）
             progress.setLabelText("設定ファイルを作成中...")
-            script_relative = Path(self.script_file).relative_to(self.source_folder)
             tags = [tag.strip() for tag in self.tag_input.text().split(',') if tag.strip()]
             
             info_data = {
@@ -931,8 +1000,9 @@ class NewCassetteWizard(QDialog):
                 'icon_color': self.current_color,
                 'tags': tags,
                 'is_favorite': self.favorite_check.isChecked(),
+                'source_folder': str(self.source_folder.resolve()),
                 'script': str(script_relative),
-                'icon': str(icon_path) if icon_path else 'icon.png'
+                'icon': str(icon_relative) if icon_relative else 'icon.png'
             }
             
             info_file = cassette_folder / "info.json"
@@ -944,7 +1014,7 @@ class NewCassetteWizard(QDialog):
             CustomMessageBox.information(
                 self,
                 "完成",
-                f"カセット '{title}' を作成しました！\n\n保存先: {cassette_folder}\n実行ファイル: {script_relative}"
+                f"カセット '{title}' を作成しました！\n\n参照元: {self.source_folder}\n実行ファイル: {script_relative}\n\n※元のフォルダを移動・削除しないでください。"
             )
             self.accept()
             
