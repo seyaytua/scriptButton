@@ -616,7 +616,7 @@ class NewCassetteWizard(QDialog):
         
         # ステップ1: フォルダ選択
         step1_frame = QFrame()
-        step1_frame.setStyleSheet("QFrame { background-color: #34495e; border-radius: 8px; padding: 12px; }")
+        step1_frame.setStyleSheet("QFrame { background-color: #e3f2fd; border-radius: 8px; padding: 12px; }")
         step1_layout = QVBoxLayout()
         
         step1_label = QLabel("ステップ 1: アプリフォルダを選択")
@@ -642,7 +642,7 @@ class NewCassetteWizard(QDialog):
         
         # ステップ2: スクリプト選択
         step2_frame = QFrame()
-        step2_frame.setStyleSheet("QFrame { background-color: #34495e; border-radius: 8px; padding: 12px; }")
+        step2_frame.setStyleSheet("QFrame { background-color: #e3f2fd; border-radius: 8px; padding: 12px; }")
         step2_layout = QVBoxLayout()
         
         step2_label = QLabel("ステップ 2: 実行ファイルを選択")
@@ -676,7 +676,7 @@ class NewCassetteWizard(QDialog):
         
         # ステップ3: カセット情報
         step3_frame = QFrame()
-        step3_frame.setStyleSheet("QFrame { background-color: #34495e; border-radius: 8px; padding: 12px; }")
+        step3_frame.setStyleSheet("QFrame { background-color: #e3f2fd; border-radius: 8px; padding: 12px; }")
         step3_layout = QVBoxLayout()
         
         step3_label = QLabel("ステップ 3: カセット情報を入力")
@@ -1907,6 +1907,7 @@ class MainWindow(QMainWindow):
         self.cassettes = []
         self.is_admin_mode = False
         self.execution_log = ExecutionLog(self.log_file)
+        self.current_save_name = None  # 現在のセーブ名を保持
         
         self.load_cassettes()
         self.setup_ui()
@@ -1934,15 +1935,15 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(20)
         main_layout.setContentsMargins(20, 20, 20, 20)
         
-        # タイトル
-        title_label = QLabel("スクリプトボタン")
+        # タイトル（動的に変更可能なようにインスタンス変数として保持）
+        self.title_label = QLabel("スクリプトボタン")
         title_font = QFont()
         title_font.setPointSize(24)
         title_font.setBold(True)
-        title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("color: #212121; padding: 10px;")
-        main_layout.addWidget(title_label)
+        self.title_label.setFont(title_font)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet("color: #212121; padding: 10px;")
+        main_layout.addWidget(self.title_label)
         
         # ボタングリッド
         self.button_frame = QFrame()
@@ -2039,6 +2040,16 @@ class MainWindow(QMainWindow):
         # ボタンの表示を更新
         for button in self.buttons:
             button.update_display()
+    
+    def update_title(self):
+        """タイトルを更新"""
+        if self.current_save_name:
+            if self.current_save_name == "last_save":
+                self.title_label.setText("スクリプトボタン（前回の設定）")
+            else:
+                self.title_label.setText(f"{self.current_save_name}")
+        else:
+            self.title_label.setText("スクリプトボタン")
     
     def create_new_cassette(self):
         """新規カセットを作成"""
@@ -2154,6 +2165,11 @@ class MainWindow(QMainWindow):
             try:
                 with open(save_file, 'w', encoding='utf-8') as f:
                     json.dump(config, f, indent=2, ensure_ascii=False)
+                
+                # セーブ名を更新
+                self.current_save_name = save_file.stem
+                self.update_title()
+                
                 CustomMessageBox.information(self, "保存完了", f"設定を保存しました: {save_file.name}")
             except Exception as e:
                 CustomMessageBox.critical(self, "エラー", f"保存に失敗しました: {str(e)}")
@@ -2182,6 +2198,10 @@ class MainWindow(QMainWindow):
                     cassette = next((c for c in self.cassettes if c.folder_path.name == cassette_folder), None)
                     if cassette:
                         self.buttons[slot - 1].set_cassette(cassette)
+            
+            # セーブ名を更新
+            self.current_save_name = save_file.stem
+            self.update_title()
             
             CustomMessageBox.information(self, "読み込み完了", f"設定を読み込みました: {save_file.name}")
         except Exception as e:
